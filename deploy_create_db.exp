@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "mysql -u dmrhospi_hrm_pro -p1Akash@@ -e 'CREATE DATABASE IF NOT EXISTS dmrhospi_hrmpro_tenant;'"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

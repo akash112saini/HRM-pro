@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 120
+spawn scp -o StrictHostKeyChecking=no database/migrations/tenant/2025_12_02_001650_create_resignations_table_fixed.php dmrhospi@162.214.80.27:public_html/hr/database/migrations/tenant/
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

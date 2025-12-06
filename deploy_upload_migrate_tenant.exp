@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 120
+spawn scp -o StrictHostKeyChecking=no deploy_migrate_tenant.php dmrhospi@162.214.80.27:public_html/hr/deploy_migrate_tenant.php
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

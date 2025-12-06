@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "ls -la public_html/hr/public/.htaccess && cat public_html/hr/public/.htaccess"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

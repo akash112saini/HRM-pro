@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.name', 'HRM-Pro') }} - @yield('title')</title>
+    <div class="sidebar">
+        <div class="logo-text">
+            <i class="bi bi-building"></i> HRM-Pro
+        </div>
+
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <!-- Dashboard (All Roles) -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }} text-white"
+                            href="{{ route('dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Super Admin Only -->
+                    @if(auth()->user()->role === 'super_admin')
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('super-admin.tenants.*') ? 'active' : '' }} text-white"
+                                href="{{ route('super-admin.tenants.index') }}">
+                                <i class="bi bi-building me-2"></i> Tenants
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Admin & Super Admin -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }} text-white"
+                                href="{{ route('users.index') }}">
+                                <i class="bi bi-people me-2"></i> User Management
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('roles.*') ? 'active' : '' }} text-white"
+                                href="{{ route('roles.index') }}">
+                                <i class="bi bi-shield-lock me-2"></i> Roles Management
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Employee Management (Admin, Manager) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin', 'manager']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }} text-white"
+                                href="{{ route('employees.index') }}">
+                                <i class="bi bi-person-badge me-2"></i> Employees
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Recruitment (Admin, Manager) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin', 'manager']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('jobs.*') || request()->routeIs('candidates.*') || request()->routeIs('interviews.*') ? 'active' : '' }} text-white"
+                                href="#recruitmentSubmenu" data-bs-toggle="collapse">
+                                <i class="bi bi-briefcase me-2"></i> Recruitment
+                            </a>
+                            <div class="collapse {{ request()->routeIs('jobs.*') || request()->routeIs('candidates.*') || request()->routeIs('interviews.*') ? 'show' : '' }}"
+                                id="recruitmentSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('jobs.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('jobs.index') }}">Job Postings</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('candidates.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('candidates.index') }}">Candidates</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('interviews.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('interviews.index') }}">Interviews</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+
+                    <!-- Attendance (All Roles - View varies) -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }} text-white"
+                            href="{{ route('attendance.index') }}">
+                            <i class="bi bi-clock me-2"></i> Attendance
+                        </a>
+                    </li>
+
+                    <!-- Leaves (All Roles) -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('leaves.*') ? 'active' : '' }} text-white"
+                            href="{{ route('leaves.index') }}">
+                            <i class="bi bi-calendar-check me-2"></i> Leaves
+                        </a>
+                    </li>
+
+                    <!-- Payroll (Admin, Manager - Employee sees ESS) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin', 'manager']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active' : '' }} text-white"
+                                href="{{ route('payroll.index') }}">
+                                <i class="bi bi-cash-stack me-2"></i> Payroll
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Assets (Admin, Manager) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin', 'manager']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('assets.*') ? 'active' : '' }} text-white"
+                                href="{{ route('assets.index') }}">
+                                <i class="bi bi-laptop me-2"></i> Assets
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Reports (Admin, Manager) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin', 'manager']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }} text-white"
+                                href="#reportsSubmenu" data-bs-toggle="collapse">
+                                <i class="bi bi-graph-up me-2"></i> Reports
+                            </a>
+                            <div class="collapse {{ request()->routeIs('reports.*') ? 'show' : '' }}" id="reportsSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('reports.attendance') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('reports.attendance') }}">Attendance</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('reports.payroll') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('reports.payroll') }}">Payroll</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+
+                    <!-- Settings (Admin Only) -->
+                    @if(in_array(auth()->user()->role, ['super_admin', 'company_admin']))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('settings*') || request()->routeIs('departments.*') || request()->routeIs('designations.*') || request()->routeIs('shifts.*') || request()->routeIs('devices.*') ? 'active' : '' }} text-white"
+                                href="#settingsSubmenu" data-bs-toggle="collapse">
+                                <i class="bi bi-gear me-2"></i> Settings
+                            </a>
+                            <div class="collapse {{ request()->is('settings*') || request()->routeIs('departments.*') || request()->routeIs('designations.*') || request()->routeIs('shifts.*') || request()->routeIs('devices.*') ? 'show' : '' }}"
+                                id="settingsSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('devices.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('devices.index') }}">Biometric Machines</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('leave-types.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('leave-types.index') }}">Leave Types</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('holidays.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('holidays.index') }}">Leave Calendar</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('designations.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('designations.index') }}">Designations</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('departments.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('departments.index') }}">Departments</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('shifts.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('shifts.index') }}">Shifts</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('tax-slabs.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('tax-slabs.index') }}">Tax Slabs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('salary-structures.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('salary-structures.index') }}">Salary Structure</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('attendance.corrections.*') ? 'active' : '' }} text-white-50"
+                                            href="{{ route('attendance.corrections.request') }}">Punch Corrections</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+
+                    <!-- Employee Self Service (All Roles) -->
+                    <li class="nav-item mt-3">
+                        <h6
+                            class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                            <span>Self Service</span>
+                        </h6>
+                        <ul class="nav flex-column mb-2">
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('ess.profile') ? 'active' : '' }} text-white"
+                                    href="{{ route('ess.profile') }}">
+                                    <i class="bi bi-person-circle me-2"></i> My Profile
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-top sticky-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="ms-auto d-flex align-items-center">
+                <!-- Notifications -->
+                <div class="dropdown me-3">
+                    <button class="btn btn-link text-dark position-relative" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            3
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                        <li>
+                            <h6 class="dropdown-header">Notifications</h6>
+                        </li>
+                        <li><a class="dropdown-item" href="#">New leave request from John Doe</a></li>
+                        <li><a class="dropdown-item" href="#">Payroll generated for November</a></li>
+                        <li><a class="dropdown-item" href="#">Interview scheduled tomorrow</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-center" href="#">View All</a></li>
+                    </ul>
+                </div>
+
+                <!-- User Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-link text-dark d-flex align-items-center" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                            style="width: 35px; height: 35px;">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                        <span class="d-none d-md-inline">{{ auth()->user()->name }}</span>
+                        <i class="bi bi-chevron-down ms-2"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @yield('content')
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js (for dashboard) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    @stack('scripts')
+    </body>
+
+</html>

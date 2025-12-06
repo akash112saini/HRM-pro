@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn scp -o StrictHostKeyChecking=no deploy_clear_opcache.php dmrhospi@162.214.80.27:public_html/hr/deploy_clear_opcache.php
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

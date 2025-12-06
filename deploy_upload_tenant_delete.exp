@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 120
+spawn scp -o StrictHostKeyChecking=no app/Http/Controllers/SuperAdmin/TenantController.php routes/web.php resources/views/super-admin/tenants/index.blade.php dmrhospi@162.214.80.27:public_html/hr/
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

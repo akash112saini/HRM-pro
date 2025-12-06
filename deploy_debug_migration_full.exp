@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 120
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "ls -l public_html/hr/database/migrations/tenant/ && php public_html/hr/deploy_migrate_tenant.php > public_html/hr/migration_log.txt 2>&1 && cat public_html/hr/migration_log.txt"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

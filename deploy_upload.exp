@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout -1
+spawn scp -o StrictHostKeyChecking=no hr-pro.zip dmrhospi@162.214.80.27:public_html/hr/hr-pro.zip
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

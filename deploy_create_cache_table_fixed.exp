@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "mysql -u dmrhospi_hrm_pro -p1Akash@@ dmrhospi_hrm_pro -e 'CREATE TABLE IF NOT EXISTS \`cache\` (\`key\` VARCHAR(255) NOT NULL, \`value\` MEDIUMTEXT NOT NULL, \`expiration\` INT NOT NULL, PRIMARY KEY (\`key\`));' && php public_html/hr/artisan optimize:clear"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

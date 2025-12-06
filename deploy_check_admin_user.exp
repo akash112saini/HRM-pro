@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "mysql -u dmrhospi_hrm_pro -p1Akash@@ -e 'USE dmrhospi_hrm_pro; SELECT id, name, email, tenant_id FROM users WHERE tenant_id = 5;'"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

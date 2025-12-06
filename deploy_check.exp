@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 20
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "php -v && echo '---DIRECTORY CHECK---' && ls -la public_html/hr"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

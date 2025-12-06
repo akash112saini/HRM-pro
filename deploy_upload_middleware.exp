@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn scp -o StrictHostKeyChecking=no app/Http/Middleware/SetTenantDatabase.php dmrhospi@162.214.80.27:public_html/hr/app/Http/Middleware/SetTenantDatabase.php
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

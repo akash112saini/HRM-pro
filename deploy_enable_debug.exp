@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "cd public_html/hr && sed -i 's/APP_DEBUG=false/APP_DEBUG=true/' .env && php artisan config:clear && php public/index.php"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

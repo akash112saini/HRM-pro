@@ -1,0 +1,117 @@
+<?php
+
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\AssetController;
+use App\Http\Controllers\CandidateController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+
+    // Organization Management
+    Route::resource('departments', DepartmentController::class);
+    Route::resource('designations', \App\Http\Controllers\DesignationController::class);
+    Route::resource('shifts', \App\Http\Controllers\ShiftController::class);
+
+    // Employee Management
+    Route::resource('employees', EmployeeController::class);
+    Route::post('employees/{employee}/documents', [\App\Http\Controllers\EmployeeDocumentController::class, 'store'])
+        ->name('employees.documents.store');
+    Route::post('employees/{employee}/banking', [\App\Http\Controllers\EmployeeBankingController::class, 'store'])
+        ->name('employees.banking.store');
+
+    // Attendance Management
+    Route::prefix('attendance')->name('attendance.')->group(function () {
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::post('/punch-in', [AttendanceController::class, 'punchIn'])->name('punch-in');
+        Route::post('/punch-out', [AttendanceController::class, 'punchOut'])->name('punch-out');
+        Route::post('/corrections', [AttendanceController::class, 'requestCorrection'])->name('corrections.request');
+        Route::post('/corrections/{id}/approve', [AttendanceController::class, 'approveCorrection'])->name('corrections.approve');
+        Route::post('/corrections/{id}/reject', [AttendanceController::class, 'rejectCorrection'])->name('corrections.reject');
+    });
+    Route::resource('devices', \App\Http\Controllers\BiometricDeviceController::class);
+
+    // Settings
+    Route::resource('leave-types', \App\Http\Controllers\LeaveTypeController::class);
+    Route::resource('holidays', \App\Http\Controllers\HolidayController::class);
+    Route::resource('tax-slabs', \App\Http\Controllers\TaxSlabController::class);
+    Route::resource('salary-structures', \App\Http\Controllers\SalaryStructureController::class);
+
+    // Leave Management
+    Route::resource('leaves', LeaveRequestController::class);
+    Route::post('leaves/{leave}/approve', [LeaveRequestController::class, 'approve'])->name('leaves.approve');
+    Route::post('leaves/{leave}/reject', [LeaveRequestController::class, 'reject'])->name('leaves.reject');
+    Route::post('leaves/{leave}/cancel', [LeaveRequestController::class, 'cancel'])->name('leaves.cancel');
+
+    // Payroll Management
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+        Route::get('/', [PayrollController::class, 'index'])->name('index');
+        Route::get('/create', [PayrollController::class, 'create'])->name('create');
+        Route::post('/generate', [PayrollController::class, 'generate'])->name('generate');
+        Route::get('/{payroll}', [PayrollController::class, 'show'])->name('show');
+        Route::get('/{payroll}/download', [PayrollController::class, 'downloadPDF'])->name('download');
+        Route::post('/{payroll}/mark-paid', [PayrollController::class, 'markAsPaid'])->name('mark-paid');
+    });
+
+    // Recruitment (ATS)
+    Route::resource('jobs', \App\Http\Controllers\JobPostingController::class);
+    Route::resource('candidates', CandidateController::class);
+    Route::post('candidates/{candidate}/move', [CandidateController::class, 'moveStage'])->name('candidates.move');
+    Route::post('candidates/{candidate}/notes', [CandidateController::class, 'updateNotes'])->name('candidates.notes');
+    Route::resource('interviews', \App\Http\Controllers\InterviewController::class);
+
+    // Performance Management
+    Route::resource('appraisal-cycles', \App\Http\Controllers\AppraisalCycleController::class);
+    Route::resource('appraisals', \App\Http\Controllers\AppraisalController::class);
+    Route::resource('goals', \App\Http\Controllers\EmployeeGoalController::class);
+
+    // Asset Management
+    Route::resource('assets', AssetController::class);
+    Route::post('assets/{asset}/assign', [AssetController::class, 'assign'])->name('assets.assign');
+    Route::post('assets/{asset}/return', [AssetController::class, 'return'])->name('assets.return');
+
+    // Documents
+    Route::get('/documents/company', [\App\Http\Controllers\CompanyDocumentController::class, 'index'])
+        ->name('documents.company');
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/attendance', [\App\Http\Controllers\ReportController::class, 'attendance'])->name('attendance');
+        Route::get('/payroll', [\App\Http\Controllers\ReportController::class, 'payroll'])->name('payroll');
+        Route::get('/headcount', [\App\Http\Controllers\ReportController::class, 'headcount'])->name('headcount');
+        Route::get('/attrition', [\App\Http\Controllers\ReportController::class, 'attrition'])->name('attrition');
+    });
+
+    // Employee Self-Service (ESS)
+    Route::prefix('ess')->name('ess.')->middleware('role:employee')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\ESSController::class, 'dashboard'])->name('dashboard');
+        Route::get('/attendance', [\App\Http\Controllers\ESSController::class, 'attendance'])->name('attendance');
+        Route::get('/leaves', [\App\Http\Controllers\ESSController::class, 'leaves'])->name('leaves');
+        Route::get('/payslips', [\App\Http\Controllers\ESSController::class, 'payslips'])->name('payslips');
+        Route::get('/documents', [\App\Http\Controllers\ESSController::class, 'documents'])->name('documents');
+        Route::get('/profile', [\App\Http\Controllers\ESSController::class, 'profile'])->name('profile');
+    });
+    // User & Role Management
+    Route::resource('users', \App\Http\Controllers\UserController::class);
+    Route::get('roles', [\App\Http\Controllers\RoleController::class, 'index'])->name('roles.index');
+});
+
+// Super Admin Routes
+Route::middleware(['auth', 'role:super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Clients (Tenants)
+    Route::resource('tenants', \App\Http\Controllers\SuperAdmin\TenantController::class);
+    Route::post('tenants/{tenant}/toggle-status', [\App\Http\Controllers\SuperAdmin\TenantController::class, 'toggleStatus'])
+        ->name('tenants.toggle-status');
+
+    // Subscription Plans
+    Route::resource('subscription-plans', \App\Http\Controllers\SuperAdmin\SubscriptionPlanController::class);

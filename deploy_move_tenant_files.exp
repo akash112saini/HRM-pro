@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 60
+spawn ssh -o StrictHostKeyChecking=no dmrhospi@162.214.80.27 "mv public_html/hr/TenantController.php public_html/hr/app/Http/Controllers/SuperAdmin/TenantController.php && mv public_html/hr/web.php public_html/hr/routes/web.php && mv public_html/hr/index.blade.php public_html/hr/resources/views/super-admin/tenants/index.blade.php"
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof

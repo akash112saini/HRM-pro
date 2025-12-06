@@ -1,0 +1,7 @@
+#!/usr/bin/expect
+set timeout 120
+spawn scp -o StrictHostKeyChecking=no database/migrations/tenant/2024_01_01_000005_create_attendance_tables.php database/migrations/tenant/2024_01_01_000006_create_leave_tables.php database/migrations/tenant/2024_01_01_000007_create_payroll_tables.php database/migrations/tenant/2024_01_01_000008_create_recruitment_tables.php database/migrations/tenant/2024_01_01_000009_create_performance_tables.php database/migrations/tenant/2024_01_01_000010_create_asset_tables.php database/migrations/tenant/2024_01_01_000011_create_document_and_exit_tables.php dmrhospi@162.214.80.27:public_html/hr/database/migrations/tenant/
+expect "password:"
+send {1012AK$$007ss@}
+send "\r"
+expect eof
